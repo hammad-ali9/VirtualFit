@@ -1,0 +1,45 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import DashboardLayout from './layouts/DashboardLayout';
+import DashboardHome from './pages/dashboard/DashboardHome';
+import './App.css';
+
+import Inventory from './pages/dashboard/Inventory';
+import Analytics from './pages/dashboard/Analytics';
+import Sessions from './pages/dashboard/Sessions';
+import Settings from './pages/dashboard/Settings';
+
+import Profile from './pages/dashboard/Profile';
+import TryOn from './pages/TryOn';
+
+function App() {
+  return (
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Standalone Try-On Interface */}
+          <Route path="/try-on" element={<TryOn />} />
+
+          {/* Protected Dashboard Routes */}
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="sessions" element={<Sessions />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
