@@ -8,21 +8,26 @@ export default {
     theme: {
         extend: {
             colors: {
-                "primary": "#2D3FE7",
+                primary: "#2D3FE7",
+                "background-light": "#F8FAFC",
+                "background-dark": "#020617",
+                "surface-light": "#FFFFFF",
+                "surface-dark": "#0F172A",
+                "border-light": "#E2E8F0",
+                "border-dark": "#1E293B",
+                "text-dark": "#0F172A",
                 "primary-dark": "#1e2bb0",
-                "background-light": "#FFFFFF",
-                "background-dark": "#0F172A",
                 "text-main": "#0F172A",
                 "text-muted": "#64748B",
-                "accent": "#14B8A6",
-                "heading": "#0F172A",
-                "body": "#64748B",
-                "page": "#F8FAFC",
-                "border-gray": "#E2E8F0",
             },
             fontFamily: {
-                "sans": ["Inter", "sans-serif"],
-                "display": ["Inter", "sans-serif"]
+                sans: ['Inter', 'sans-serif'],
+                display: ['Space Grotesk', 'sans-serif'],
+            },
+            boxShadow: {
+                '3d': '6px 6px 0px 0px rgba(15, 23, 42, 1)',
+                '3d-hover': '3px 3px 0px 0px rgba(15, 23, 42, 1)',
+                '3d-primary': '6px 6px 0px 0px rgba(45, 63, 231, 0.4)',
             },
             backgroundImage: {
                 'gradient-blue': 'linear-gradient(135deg, #2D3FE7 0%, #4F46E5 100%)',
