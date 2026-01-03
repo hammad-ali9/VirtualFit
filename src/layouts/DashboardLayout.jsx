@@ -1,9 +1,26 @@
 import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 
 const DashboardLayout = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Get real outlet data from localStorage
+    const outlet = authAPI.getOutlet();
+
+    // Get initials from outlet name
+    const getInitials = (name) => {
+        if (!name) return 'VF';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    };
+
+    // Handle logout
+    const handleLogout = () => {
+        authAPI.logout();
+        navigate('/login');
+    };
 
     const navigation = [
         { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
@@ -68,20 +85,20 @@ const DashboardLayout = () => {
                     <div className="border-t-2 border-slate-900 dark:border-white p-6 bg-slate-50 dark:bg-slate-900/50">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="size-10 rounded-sm bg-primary border-2 border-slate-900 dark:border-white flex items-center justify-center text-white font-bold shadow-[2px_2px_0px_0px_rgba(15,23,42,1)]">
-                                JD
+                                {getInitials(outlet?.name)}
                             </div>
                             <div className="overflow-hidden">
-                                <p className="text-sm font-bold text-slate-900 dark:text-white truncate uppercase">Jane Doe</p>
-                                <p className="text-[10px] font-bold text-slate-500 truncate uppercase">Urban Style Outlet</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-white truncate uppercase">{outlet?.name || 'Guest'}</p>
+                                <p className="text-[10px] font-bold text-slate-500 truncate">{outlet?.email || 'Not logged in'}</p>
                             </div>
                         </div>
-                        <Link
-                            to="/login"
+                        <button
+                            onClick={handleLogout}
                             className="flex items-center gap-2 font-bold uppercase text-[10px] text-slate-500 hover:text-red-600 transition-colors"
                         >
                             <span className="material-symbols-outlined text-[18px]">logout</span>
                             Sign Out
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </aside>

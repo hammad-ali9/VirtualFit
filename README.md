@@ -1,16 +1,267 @@
-# React + Vite
+# VirtualFit - Virtual Try-On System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern virtual try-on platform for retail outlets, enabling customers to virtually try clothing items using AR technology. Built with React frontend and Flask backend.
 
-Currently, two official plugins are available:
+![VirtualFit](https://img.shields.io/badge/VirtualFit-v1.0-blue)
+![React](https://img.shields.io/badge/React-18.x-61DAFB)
+![Flask](https://img.shields.io/badge/Flask-2.x-000000)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## React Compiler
+### For Outlets (Dashboard)
+- **Product Inventory Management** - Add, edit, delete products with images
+- **Real-time Session Tracking** - Monitor customer try-on sessions
+- **Analytics Dashboard** - View metrics, category breakdowns, top products
+- **Subscription Management** - Multiple plans with product limits
+- **Multiple Payment Methods** - Add multiple cards, set default
+- **Voucher System** - Apply discount codes during checkout
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### For Customers (Try-On Screen)
+- **AR Virtual Try-On** - See clothes on your body in real-time
+- **Category Filtering** - Browse by shirts, pants, etc.
+- **Smart Selection** - Upper/lower body detection
+- **Camera Integration** - Body scanning with tutorial
 
-## Expanding the ESLint configuration
+### Subscription Plans
+| Plan | Products | Price | Features |
+|------|----------|-------|----------|
+| Trial | 10 | Free (7 days) | Basic features |
+| Starter | 50 | $99/mo | Basic Analytics, Email Support |
+| Professional | 200 | $129/mo | Advanced Analytics, Priority Support, Custom Branding |
+| Enterprise | Unlimited | $299/mo | Full Suite, Dedicated Manager, API Access |
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📋 Prerequisites
+
+- **Node.js** 18+ and npm
+- **Python** 3.10+
+- **PostgreSQL** 15+ (or use SQLite for development)
+
+## 🛠️ Installation
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/YOUR_USERNAME/VirtualFit.git
+cd VirtualFit
+```
+
+### 2. Frontend Setup
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+Frontend runs at: `http://localhost:5173`
+
+### 3. Backend Setup
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+.\venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Setup environment variables
+cp .env.example .env
+# Edit .env with your database credentials
+```
+
+### 4. Database Setup
+```bash
+# Initialize database
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+
+# Create test voucher (optional)
+python create_test_voucher.py
+```
+
+### 5. Start Backend Server
+```bash
+python run.py
+```
+Backend runs at: `http://localhost:5000`
+
+## 🔧 Configuration
+
+### Environment Variables (.env)
+```env
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/virtualfit
+SECRET_KEY=your-secret-key
+JWT_SECRET_KEY=your-jwt-secret
+UPLOAD_FOLDER=static/uploads
+MAX_CONTENT_LENGTH=16777216
+```
+
+### For SQLite (Development)
+```env
+DATABASE_URL=sqlite:///virtualfit.db
+```
+
+## 📁 Project Structure
+
+```
+VirtualFit/
+├── src/                    # Frontend React app
+│   ├── components/         # Reusable components
+│   ├── layouts/            # Layout components
+│   ├── pages/              # Page components
+│   │   ├── dashboard/      # Dashboard pages
+│   │   │   ├── DashboardHome.jsx
+│   │   │   ├── Inventory.jsx
+│   │   │   ├── Sessions.jsx
+│   │   │   ├── Analytics.jsx
+│   │   │   ├── Subscription.jsx
+│   │   │   └── Settings.jsx
+│   │   ├── TryOn.jsx       # Customer try-on screen
+│   │   ├── Login.jsx
+│   │   └── Register.jsx
+│   └── services/
+│       └── api.js          # API service layer
+│
+├── backend/                # Flask backend
+│   ├── app/
+│   │   ├── models/         # Database models
+│   │   │   ├── outlet.py
+│   │   │   ├── product.py
+│   │   │   ├── session.py
+│   │   │   └── subscription.py
+│   │   ├── routes/         # API routes
+│   │   │   ├── auth.py
+│   │   │   ├── products.py
+│   │   │   ├── outlets.py
+│   │   │   ├── sessions.py
+│   │   │   └── subscriptions.py
+│   │   └── __init__.py
+│   ├── migrations/         # Database migrations
+│   ├── static/uploads/     # Uploaded product images
+│   ├── requirements.txt
+│   └── run.py
+│
+└── README.md
+```
+
+## 🔐 API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new outlet |
+| POST | `/api/auth/login` | Login and get JWT token |
+
+### Products
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/products` | Get all products |
+| POST | `/api/products` | Create product (with limit check) |
+| PUT | `/api/products/:id` | Update product |
+| DELETE | `/api/products/:id` | Delete product |
+
+### Subscriptions
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/subscriptions` | Get subscription status |
+| POST | `/api/subscriptions/select-plan` | Select a plan |
+| POST | `/api/subscriptions/validate-voucher` | Validate voucher code |
+| POST | `/api/subscriptions/pay` | Process payment |
+| GET | `/api/subscriptions/invoices` | Get billing history |
+| POST | `/api/subscriptions/:id/cards` | Add payment method |
+| DELETE | `/api/subscriptions/:id/cards/:cardId` | Remove card |
+
+### Sessions
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/sessions` | Get all sessions |
+| POST | `/api/sessions` | Create try-on session |
+| GET | `/api/sessions/analytics` | Get session analytics |
+
+## 🧪 Testing
+
+### Test Voucher
+A test voucher is available for free access:
+```
+Code: TESTFREE
+Discount: 100% OFF (FREE)
+Valid for: All plans
+```
+
+### Creating Custom Vouchers
+```python
+# In Flask shell or script
+from app.models.subscription import Voucher
+voucher = Voucher(
+    code='NEWCODE',
+    discount_type='percentage',  # or 'fixed', 'free'
+    discount_value=50,  # 50% off
+    applicable_plans='starter,professional,enterprise'
+)
+db.session.add(voucher)
+db.session.commit()
+```
+
+## 📱 Usage
+
+### 1. Register an Outlet
+- Go to `/register`
+- Fill in outlet details
+- Login with credentials
+
+### 2. Add Products
+- Navigate to Inventory
+- Click "Add New Item"
+- Upload product image and details
+
+### 3. Subscribe to a Plan
+- Go to Subscription page
+- Choose a plan
+- Add payment method
+- Apply voucher (optional)
+- Complete payment
+
+### 4. Open Customer Screen
+- Navigate to `/tryon` in a new tab
+- This is the customer-facing AR try-on screen
+- Select products to virtually try them
+
+## 🎨 UI Design
+
+The dashboard features a modern, brutalist design with:
+- Bold typography and uppercase headings
+- 2px borders with 3D shadow effects
+- Material Symbols icons
+- Dark mode support
+- Responsive mobile layout
+
+## 🔒 Security
+
+- JWT-based authentication
+- Protected routes (frontend)
+- Password hashing with Werkzeug
+- CORS configured for frontend origin
+
+## 📄 License
+
+This project is part of a Final Year Project (FYP).
+
+## 👥 Contributors
+
+- Your Name - Developer
+
+## 🆘 Support
+
+For issues or questions, please open a GitHub issue.
+
+---
+
+**Built with ❤️ for retail innovation**

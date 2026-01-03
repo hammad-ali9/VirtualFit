@@ -143,4 +143,122 @@ export const productsAPI = {
     }
 };
 
-export default { authAPI, outletsAPI, productsAPI };
+// Subscriptions API
+export const subscriptionsAPI = {
+    get: async (outletId) => {
+        return apiRequest(`/subscriptions?outlet_id=${outletId}`);
+    },
+
+    // Step 1: Select a plan
+    selectPlan: async (outletId, plan) => {
+        return apiRequest('/subscriptions/select-plan', {
+            method: 'POST',
+            body: JSON.stringify({ outlet_id: outletId, plan }),
+        });
+    },
+
+    // Step 2: Validate voucher
+    validateVoucher: async (code, plan) => {
+        return apiRequest('/subscriptions/validate-voucher', {
+            method: 'POST',
+            body: JSON.stringify({ code, plan }),
+        });
+    },
+
+    // Step 3: Process payment
+    pay: async (subscriptionId, paymentMethodId, voucherCode = null) => {
+        return apiRequest('/subscriptions/pay', {
+            method: 'POST',
+            body: JSON.stringify({
+                subscription_id: subscriptionId,
+                payment_method_id: paymentMethodId,
+                voucher_code: voucherCode
+            }),
+        });
+    },
+
+    update: async (id, data) => {
+        return apiRequest(`/subscriptions/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        });
+    },
+
+    getInvoices: async (outletId, limit = 10) => {
+        return apiRequest(`/subscriptions/invoices?outlet_id=${outletId}&limit=${limit}`);
+    },
+
+    getPlans: async () => {
+        return apiRequest('/subscriptions/plans');
+    },
+
+    // Card management
+    addCard: async (subscriptionId, cardData) => {
+        return apiRequest(`/subscriptions/${subscriptionId}/cards`, {
+            method: 'POST',
+            body: JSON.stringify(cardData),
+        });
+    },
+
+    deleteCard: async (subscriptionId, cardId) => {
+        return apiRequest(`/subscriptions/${subscriptionId}/cards/${cardId}`, {
+            method: 'DELETE',
+        });
+    },
+
+    setDefaultCard: async (subscriptionId, cardId) => {
+        return apiRequest(`/subscriptions/${subscriptionId}/cards/${cardId}/default`, {
+            method: 'PUT',
+        });
+    },
+
+    // Product limit check
+    checkProductLimit: async (outletId) => {
+        return apiRequest(`/subscriptions/check-limit?outlet_id=${outletId}`);
+    }
+};
+
+
+// Sessions API
+export const sessionsAPI = {
+    getAll: async (outletId = null, limit = 50) => {
+        const params = new URLSearchParams();
+        if (outletId) params.append('outlet_id', outletId);
+        if (limit) params.append('limit', limit);
+        return apiRequest(`/sessions?${params.toString()}`);
+    },
+
+    getById: async (id) => {
+        return apiRequest(`/sessions/${id}`);
+    },
+
+    create: async (outletId, kioskId = 'web') => {
+        return apiRequest('/sessions', {
+            method: 'POST',
+            body: JSON.stringify({ outlet_id: outletId, kiosk_id: kioskId }),
+        });
+    },
+
+    end: async (id, status = 'completed') => {
+        return apiRequest(`/sessions/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ status }),
+        });
+    },
+
+    addEvent: async (sessionId, productId, durationSeconds = null) => {
+        return apiRequest(`/sessions/${sessionId}/events`, {
+            method: 'POST',
+            body: JSON.stringify({
+                product_id: productId,
+                duration_seconds: durationSeconds
+            }),
+        });
+    },
+
+    getAnalytics: async (outletId, days = 7) => {
+        return apiRequest(`/sessions/analytics?outlet_id=${outletId}&days=${days}`);
+    }
+};
+
+export default { authAPI, outletsAPI, productsAPI, subscriptionsAPI, sessionsAPI };

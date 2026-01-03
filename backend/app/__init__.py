@@ -47,10 +47,16 @@ def create_app():
     from app.routes.products import products_bp
     from app.routes.outlets import outlets_bp
     from app.routes.auth import auth_bp
+    from app.routes.subscriptions import subscriptions_bp
+    from app.routes.sessions import sessions_bp
     
     app.register_blueprint(products_bp, url_prefix='/api/products')
     app.register_blueprint(outlets_bp, url_prefix='/api/outlets')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(subscriptions_bp, url_prefix='/api/subscriptions')
+    app.register_blueprint(sessions_bp, url_prefix='/api/sessions')
+
+
     
     # Health check route
     @app.route('/api/health')

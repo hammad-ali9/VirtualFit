@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { productsAPI, authAPI } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
+import { productsAPI, authAPI, subscriptionsAPI } from '../../services/api';
 
 const Inventory = () => {
     const [products, setProducts] = useState([]);
@@ -8,8 +9,10 @@ const Inventory = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [productLimit, setProductLimit] = useState({ limit: null, current: 0, plan: 'trial' });
 
     const outlet = authAPI.getOutlet();
+    const navigate = useNavigate();
 
     // Form state
     const [formData, setFormData] = useState({
@@ -24,6 +27,7 @@ const Inventory = () => {
     // Fetch products on mount
     useEffect(() => {
         fetchProducts();
+        fetchProductLimit();
     }, []);
 
     const fetchProducts = async () => {
@@ -41,12 +45,34 @@ const Inventory = () => {
         }
     };
 
+    const fetchProductLimit = async () => {
+        try {
+            const response = await subscriptionsAPI.checkProductLimit(outlet?.id);
+            if (response.success) {
+                setProductLimit({
+                    limit: response.data.limit,
+                    current: response.data.current_count,
+                    canAdd: response.data.can_add,
+                    remaining: response.data.remaining,
+                    plan: response.data.plan
+                });
+            }
+        } catch (err) {
+            console.error('Failed to check product limit:', err);
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const openAddModal = () => {
+        // Check if at limit
+        if (productLimit.limit !== null && products.length >= productLimit.limit) {
+            setError(`Product limit reached (${productLimit.limit}). Please upgrade your plan to add more products.`);
+            return;
+        }
         setEditingProduct(null);
         setFormData({
             name: '',
@@ -97,6 +123,11 @@ const Inventory = () => {
                 const response = await productsAPI.create(productData);
                 if (response.success) {
                     setProducts(prev => [response.data, ...prev]);
+                    fetchProductLimit(); // Refresh limit after adding
+                } else if (response.limit_reached) {
+                    setError(response.error);
+                    setShowModal(false);
+                    return;
                 }
             }
             setShowModal(false);
@@ -138,8 +169,42 @@ const Inventory = () => {
         }
     };
 
+    const isAtLimit = productLimit.limit !== null && products.length >= productLimit.limit;
+
     return (
         <div className="max-w-7xl mx-auto">
+            {/* Product Limit Banner */}
+            {productLimit.limit !== null && (
+                <div className={`mb-6 p-4 rounded-sm border-2 flex items-center justify-between ${isAtLimit
+                        ? 'bg-red-50 border-red-300 text-red-700'
+                        : products.length >= productLimit.limit * 0.8
+                            ? 'bg-amber-50 border-amber-300 text-amber-700'
+                            : 'bg-blue-50 border-blue-300 text-blue-700'
+                    }`}>
+                    <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined">
+                            {isAtLimit ? 'warning' : 'inventory_2'}
+                        </span>
+                        <div>
+                            <p className="font-bold text-sm uppercase">
+                                {isAtLimit ? 'Product Limit Reached' : 'Product Usage'}
+                            </p>
+                            <p className="text-sm opacity-80">
+                                {products.length} / {productLimit.limit} products used ({productLimit.plan} plan)
+                            </p>
+                        </div>
+                    </div>
+                    {isAtLimit && (
+                        <button
+                            onClick={() => navigate('/dashboard/subscription')}
+                            className="px-4 py-2 bg-primary text-white font-bold uppercase text-xs rounded-sm border-2 border-slate-900 hover:translate-y-1 shadow-3d transition-all"
+                        >
+                            Upgrade Plan
+                        </button>
+                    )}
+                </div>
+            )}
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-display font-bold text-slate-900 dark:text-white uppercase tracking-tight">Inventory</h1>
@@ -147,10 +212,14 @@ const Inventory = () => {
                 </div>
                 <button
                     onClick={openAddModal}
-                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white border-2 border-slate-900 dark:border-white rounded-sm font-bold uppercase text-xs hover:translate-y-1 shadow-3d hover:shadow-3d-hover transition-all"
+                    disabled={isAtLimit}
+                    className={`flex items-center gap-2 px-6 py-3 border-2 border-slate-900 dark:border-white rounded-sm font-bold uppercase text-xs transition-all ${isAtLimit
+                            ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                            : 'bg-primary text-white hover:translate-y-1 shadow-3d hover:shadow-3d-hover'
+                        }`}
                 >
-                    <span className="material-symbols-outlined text-[20px]">add</span>
-                    Add New Item
+                    <span className="material-symbols-outlined text-[20px]">{isAtLimit ? 'block' : 'add'}</span>
+                    {isAtLimit ? 'Limit Reached' : 'Add New Item'}
                 </button>
             </div>
 

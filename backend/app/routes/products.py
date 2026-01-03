@@ -59,6 +59,26 @@ def create_product():
                 'error': f'Missing required field: {field}'
             }), 400
     
+    outlet_id = int(data['outlet_id'])
+    
+    # Check product limit based on subscription
+    from app.models.subscription import Subscription
+    subscription = Subscription.query.filter_by(outlet_id=outlet_id).first()
+    
+    if subscription:
+        limit = subscription.get_product_limit()
+        if limit is not None:  # None means unlimited
+            current_count = Product.query.filter_by(outlet_id=outlet_id).count()
+            if current_count >= limit:
+                return jsonify({
+                    'success': False,
+                    'error': f'Product limit reached ({limit} products). Please upgrade your plan to add more products.',
+                    'limit_reached': True,
+                    'current_count': current_count,
+                    'limit': limit,
+                    'plan': subscription.plan_name
+                }), 403
+    
     # Handle file upload if present
     image_url = None
     if 'image' in request.files:
@@ -71,7 +91,7 @@ def create_product():
     
     # Create product
     product = Product(
-        outlet_id=int(data['outlet_id']),
+        outlet_id=outlet_id,
         name=data['name'],
         category=data['category'],
         price=float(data['price']),
