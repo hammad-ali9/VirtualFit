@@ -19,6 +19,8 @@ A modern virtual try-on platform for retail outlets, enabling customers to virtu
 
 ### For Customers (Try-On Screen)
 - **AR Virtual Try-On** - See clothes on your body in real-time
+- **AI Gesture Control** - Control the experience with hand gestures (Move, Click, Scroll)
+- **Real-time Video Feed** - MJPEG streaming from backend AI engine
 - **Category Filtering** - Browse by shirts, pants, etc.
 - **Smart Selection** - Upper/lower body detection
 - **Camera Integration** - Body scanning with tutorial
@@ -35,6 +37,7 @@ A modern virtual try-on platform for retail outlets, enabling customers to virtu
 
 - **Node.js** 18+ and npm
 - **Python** 3.10+
+- **OpenCV & MediaPipe** (for AI tracking)
 - **PostgreSQL** 15+ (or use SQLite for development)
 
 ## 🛠️ Installation
@@ -87,11 +90,24 @@ flask db upgrade
 python create_test_voucher.py
 ```
 
-### 5. Start Backend Server
+### 5. Running the AI Gesture Engine
+The gesture engine is integrated into the Flask app. Ensure `mediapipe`, `opencv-python`, and `pyautogui` are installed in your virtual environment:
+```bash
+pip install opencv-python mediapipe pyautogui
+```
+
+### 6. Start Backend Server
 ```bash
 python run.py
 ```
 Backend runs at: `http://localhost:5000`
+
+## 🧠 AI Gesture Control & Streaming
+
+VirtualFit uses a high-performance **Backend-AI Architecture**:
+- **Gesture Engine**: A background Python thread running MediaPipe for sub-millisecond hand tracking.
+- **Virtual Mouse**: Converts hand landmarks into physical mouse movements and clicks via `pyautogui`.
+- **MJPEG Streaming**: Processed A.I. frames are streamed from Flask as `multipart/x-mixed-replace`, ensuring low latency and zero camera hardware conflicts with the browser.
 
 ## 🔧 Configuration
 
@@ -206,10 +222,14 @@ VirtualFit/
 - Apply voucher (optional)
 - Complete payment
 
-### 4. Open Customer Screen
-- Navigate to `/tryon` in a new tab
-- This is the customer-facing AR try-on screen
-- Select products to virtually try them
+### 4. Launch Customer Screen
+- From the Dashboard, click **Launch Screen**.
+- The Dashboard will initialize the AI engine and then open the Try-On window.
+- The Try-On screen will automatically start receiving the live AI video feed.
+- Control the cursor with your hand:
+    - **Move**: Use your index finger.
+    - **Click**: Pinch index and middle fingers together.
+    - **Exit**: Click "Stop & Close" on the Try-On screen or "Stop Virtual Try" on the Dashboard.
 
 ## 🎨 UI Design
 
